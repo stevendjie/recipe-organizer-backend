@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  ready_in_minutes: 1
+  source_url: MyText
+  user: one
+  scale_factor: 9.99
+
+two:
+  title: MyString
+  ready_in_minutes: 1
+  source_url: MyText
+  user: two
+  scale_factor: 9.99
