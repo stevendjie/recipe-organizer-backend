@@ -1,11 +1,12 @@
 module Api
   module V1
     class RecipesController < ApplicationController
+      before_action :authorize_access_request!
       before_action :set_recipe, only: [:show, :update, :destroy]
     
       # GET /recipes
       def index
-        @recipes = Recipe.all
+        @recipes = current_user.recipes.all
     
         render json: @recipes
       end
@@ -17,7 +18,7 @@ module Api
     
       # POST /recipes
       def create
-        @recipe = Recipe.new(recipe_params)
+        @recipe = current_user.recipes.build(recipe_params)
     
         if @recipe.save
           render json: @recipe, status: :created, location: @recipe
@@ -43,7 +44,7 @@ module Api
       private
         # Use callbacks to share common setup or constraints between actions.
         def set_recipe
-          @recipe = Recipe.find(params[:id])
+          @recipe = current_user.recipes.find(params[:id])
         end
     
         # Only allow a trusted parameter "white list" through.

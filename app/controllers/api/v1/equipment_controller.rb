@@ -1,6 +1,7 @@
 module Api
   module V1
     class EquipmentController < ApplicationController
+      before_action :authorize_access_request!
       before_action :set_equipment, only: [:show, :update, :destroy]
     
       # GET /equipment

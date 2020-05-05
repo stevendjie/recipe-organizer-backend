@@ -1,6 +1,7 @@
 module Api
   module V1
     class InstructionsController < ApplicationController
+      before_action :authorize_access_request!
       before_action :set_instruction, only: [:show, :update, :destroy]
     
       # GET /instructions
