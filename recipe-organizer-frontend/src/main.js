@@ -4,12 +4,19 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import VueAxios from 'vue-axios'
+import BootstrapVue from 'bootstrap-vue/dist/bootstrap-vue.esm'
+
 import { securedAxiosInstance, plainAxiosInstance } from './backend/axios'
+
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 Vue.use(VueAxios, {
   secured: securedAxiosInstance,
   plain: plainAxiosInstance
 })
+
+Vue.use(BootstrapVue)
 
 Vue.config.productionTip = false
 

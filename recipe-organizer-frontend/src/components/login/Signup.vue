@@ -7,42 +7,38 @@
     <input type="email" v-model="email" />
     <p>Password</p>
     <input type="password" v-model="password" />
-    <button @click="login">
-      Login
+    <p>Confirm Password</p>
+    <input type="password" v-model="passwordConfirmation" />
+    <button @click="signup">
+      Signup
     </button>
-    <RouterLink to="/signup">
-      Sign Up
+    <RouterLink to="/login">
+      Login
     </RouterLink>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Login',
+  name: 'Signup',
   data () {
     return {
       email: '',
       password: '',
+      passwordConfirmation: '',
       error: ''
     }
   },
-  created () {
-    this.checkLogggedIn()
-  },
-  updated () {
-    this.checkLogggedIn()
-  },
   methods: {
-    login () {
-      const { email, password } = this
-      console.log(email, password)
-      this.$http.plain.post('/login', { email, password })
+    signup () {
+      const { email, password, passwordConfirmation } = this
+      this.$http.plain.post('/signup', { email, password, password_confirmation: passwordConfirmation })
         .then(response => this.loginSuccessful(response))
         .catch(error => this.loginFailed(error))
     },
     loginSuccessful (response) {
       if (!response.data.csrf) {
-        this.signinFailed(response)
+        this.loginFailed(response)
         return
       }
       localStorage.csrf = response.data.csrf
@@ -51,12 +47,11 @@ export default {
       this.$router.replace('/recipes')
     },
     loginFailed (error) {
-      this.error = (error.response && error.response.data && error.response.data.error) || 'Login failed'
+      this.error = (error.response && error.response.data && error.response.data.error) || 'Signup failed'
       delete localStorage.csrf
       delete localStorage.signedIn
     },
     checkLogggedIn () {
-      console.log(localStorage)
       if (localStorage.signedIn) {
         this.$router.replace('/recipes')
       }
