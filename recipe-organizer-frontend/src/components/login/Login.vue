@@ -1,18 +1,13 @@
 <template>
   <div>
-    <div v-if="error">
-      {{ error }}
+    <BFormInput v-model="email" placeholder="Enter your email" class="mb-3" type="email" @keyup.enter="login"></BFormInput>
+    <BFormInput v-model="password" placeholder="Enter your password" class="mb-3" type="password" @keyup.enter="login"></BFormInput>
+    <div class="text-center">
+      <BButton variant="outline-primary" class="mr-2" @click="login">Login</BButton>
+      <RouterLink to="/signup">
+        Sign Up
+      </RouterLink>
     </div>
-    <p>Email Address</p>
-    <input type="email" v-model="email" />
-    <p>Password</p>
-    <input type="password" v-model="password" />
-    <button @click="login">
-      Login
-    </button>
-    <RouterLink to="/signup">
-      Sign Up
-    </RouterLink>
   </div>
 </template>
 
@@ -35,7 +30,6 @@ export default {
   methods: {
     login () {
       const { email, password } = this
-      console.log(email, password)
       this.$http.plain.post('/login', { email, password })
         .then(response => this.loginSuccessful(response))
         .catch(error => this.loginFailed(error))
@@ -49,6 +43,7 @@ export default {
       localStorage.signedIn = true
       this.error = ''
       this.$router.replace('/recipes')
+      window.location.reload()
     },
     loginFailed (error) {
       this.error = (error.response && error.response.data && error.response.data.error) || 'Login failed'
@@ -65,7 +60,3 @@ export default {
 }
 
 </script>
-
-<style scoped>
-
-</style>

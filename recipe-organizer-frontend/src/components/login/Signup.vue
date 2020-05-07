@@ -1,20 +1,14 @@
 <template>
   <div>
-    <div v-if="error">
-      {{ error }}
+    <BFormInput v-model="email" placeholder="Enter your email" class="mb-3" type="email"></BFormInput>
+    <BFormInput v-model="password" placeholder="Enter your password" class="mb-3" type="password"></BFormInput>
+    <BFormInput v-model="passwordConfirmation" placeholder="Re-enter your password" class="mb-3" type="password"></BFormInput>
+    <div class="text-center">
+      <BButton variant="outline-primary" class="mr-2" @click="signup">Sign Up</BButton>
+      <RouterLink to="/">
+        Login
+      </RouterLink>
     </div>
-    <p>Email Address</p>
-    <input type="email" v-model="email" />
-    <p>Password</p>
-    <input type="password" v-model="password" />
-    <p>Confirm Password</p>
-    <input type="password" v-model="passwordConfirmation" />
-    <button @click="signup">
-      Signup
-    </button>
-    <RouterLink to="/login">
-      Login
-    </RouterLink>
   </div>
 </template>
 
@@ -28,6 +22,12 @@ export default {
       passwordConfirmation: '',
       error: ''
     }
+  },
+  created() {
+    this.checkLogggedIn();
+  },
+  updated() {
+    this.checkLogggedIn();
   },
   methods: {
     signup () {
@@ -60,7 +60,3 @@ export default {
 }
 
 </script>
-
-<style scoped>
-
-</style>
