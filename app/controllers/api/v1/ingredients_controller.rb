@@ -1,7 +1,7 @@
 module Api
   module V1
     class IngredientsController < ApplicationController
-      before_action :authorize_access_request!
+      before_action :authorize_access_request!, except: [:index, :show]
       before_action :set_ingredient, only: [:show, :update, :destroy]
     
       # GET /ingredients
