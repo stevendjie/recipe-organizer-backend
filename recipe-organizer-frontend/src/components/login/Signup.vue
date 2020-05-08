@@ -22,8 +22,7 @@ export default {
     return {
       email: '',
       password: '',
-      passwordConfirmation: '',
-      error: ''
+      passwordConfirmation: ''
     }
   },
   created () {
@@ -50,7 +49,13 @@ export default {
       this.$router.replace('/recipes')
     },
     loginFailed (error) {
-      this.error = (error.response && error.response.data && error.response.data.error) || 'Signup failed'
+      const text = (error.response && error.response.data && error.response.data.error) || ''
+      this.$notify({
+        group: 'app-notifications',
+        title: 'Failed to create a new account.',
+        type: 'error',
+        text 
+      });
       delete localStorage.csrf
       delete localStorage.signedIn
     },

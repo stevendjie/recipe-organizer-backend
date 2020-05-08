@@ -48,7 +48,13 @@ export default {
       window.location.reload()
     },
     loginFailed (error) {
-      this.error = (error.response && error.response.data && error.response.data.error) || 'Login failed'
+      const text = (error.response && error.response.data && error.response.data.error) || 'Login failed'
+      this.$notify({
+        group: 'app-notifications',
+        title: 'Failed to login!',
+        type: 'error',
+        text 
+      });
       delete localStorage.csrf
       delete localStorage.signedIn
     },

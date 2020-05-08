@@ -59,6 +59,12 @@ export default {
       this.$http.secured.get('/api/v1/recipes/')
       .then((resp) => {
         this.recipes = resp.data.map(recipe => constructRecipe(recipe))
+      }).catch(() => {
+        this.$notify({
+          group: 'app-notificaions',
+          title: 'Failed to fetch recipes',
+          type: 'error'
+        })
       })
     } else {
       this.$router.replace('/')
@@ -75,6 +81,17 @@ export default {
       }).then((resp) => {
         this.recipes.unshift(constructRecipe(resp.data, true))
         this.disableAddRecipe = false
+        this.$notify({
+          group: 'app-notifications',
+          title: 'Successfully created recipe!',
+          type: 'success',
+        })
+      }).catch(() => {
+        this.$notify({
+          group: 'app-notifications',
+          title: 'Failed to create recipe!',
+          type: 'error',
+        })
       })
     }
   }

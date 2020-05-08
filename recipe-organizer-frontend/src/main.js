@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import VueAxios from 'vue-axios'
 import BootstrapVue from 'bootstrap-vue/dist/bootstrap-vue.esm'
+import Notifications from 'vue-notification'
 
 import { securedAxiosInstance, plainAxiosInstance } from './backend/axios'
 
@@ -15,6 +16,8 @@ Vue.use(VueAxios, {
   secured: securedAxiosInstance,
   plain: plainAxiosInstance
 })
+
+Vue.use(Notifications)
 
 Vue.use(BootstrapVue)
 

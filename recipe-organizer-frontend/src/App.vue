@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <notifications group="app-notifications" position="top right"/>
     <Nav />
     <div class="container">
       <div class="col-md-12">
