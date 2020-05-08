@@ -7,7 +7,6 @@ module Api
       # GET /recipes
       def index
         @recipes = current_user.recipes.all
-    
         render json: @recipes
       end
     
@@ -18,10 +17,25 @@ module Api
     
       # POST /recipes
       def create
-        @recipe = current_user.recipes.build(recipe_params)
-    
+        source_url = recipe_params[:source_url]
+        recipe = { title: recipe_params[:title] }
+        if source_url.present?
+          # TODO: move elsewhere
+          base_endpoint = 'https://api.spoonacular.com/recipes'
+          api_key = '61da5a0bce374243a421ab56e2b092bc'
+
+          extract_path = '/extract'
+
+          response = Faraday.get(base_endpoint + extract_path, { apiKey: api_key }, { url: source_url })
+          if response.status == 200
+            
+          end
+        end
+
+        @recipe = current_user.recipes.build(recipe)
+
         if @recipe.save
-          render json: @recipe, status: :created, location: @recipe
+          render json: @recipe.to_json(include: [:ingredients, :equipment, :notes, :instructions]), status: :created
         else
           render json: @recipe.errors, status: :unprocessable_entity
         end
@@ -49,7 +63,7 @@ module Api
     
         # Only allow a trusted parameter "white list" through.
         def recipe_params
-          params.fetch(:recipe, {})
+          params.require(:recipe).permit(:title, :source_url)
         end
     end    
   end

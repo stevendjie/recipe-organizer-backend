@@ -1,6 +1,8 @@
 <template>
   <div>
+    <label>Email</label>
     <BFormInput v-model="email" placeholder="Enter your email" class="mb-3" type="email" @keyup.enter="login"></BFormInput>
+    <label>Password</label>
     <BFormInput v-model="password" placeholder="Enter your password" class="mb-3" type="password" @keyup.enter="login"></BFormInput>
     <div class="text-center">
       <BButton variant="outline-primary" class="mr-2" @click="login">Login</BButton>
@@ -51,7 +53,6 @@ export default {
       delete localStorage.signedIn
     },
     checkLogggedIn () {
-      console.log(localStorage)
       if (localStorage.signedIn) {
         this.$router.replace('/recipes')
       }

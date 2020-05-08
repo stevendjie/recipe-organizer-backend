@@ -1,7 +1,10 @@
 <template>
   <div>
+    <label>Email</label>
     <BFormInput v-model="email" placeholder="Enter your email" class="mb-3" type="email"></BFormInput>
+    <label>Password</label>
     <BFormInput v-model="password" placeholder="Enter your password" class="mb-3" type="password"></BFormInput>
+    <label>Confirm Password</label>
     <BFormInput v-model="passwordConfirmation" placeholder="Re-enter your password" class="mb-3" type="password"></BFormInput>
     <div class="text-center">
       <BButton variant="outline-primary" class="mr-2" @click="signup">Sign Up</BButton>
@@ -23,11 +26,11 @@ export default {
       error: ''
     }
   },
-  created() {
-    this.checkLogggedIn();
+  created () {
+    this.checkLogggedIn()
   },
-  updated() {
-    this.checkLogggedIn();
+  updated () {
+    this.checkLogggedIn()
   },
   methods: {
     signup () {

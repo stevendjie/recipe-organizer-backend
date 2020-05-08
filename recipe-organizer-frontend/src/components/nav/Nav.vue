@@ -30,14 +30,14 @@
 <script>
 export default {
   name: 'Nav',
-  data() {
+  data () {
     return {
       currentPath: ''
     }
   },
   computed: {
     loggedIn () {
-      return localStorage.signedIn;
+      return localStorage.signedIn
     }
   },
   methods: {
