@@ -6,4 +6,5 @@ class Recipe < ApplicationRecord
   has_many :instructions, dependent: :destroy
 
   validates :title, presence: true
+  validates :scale_factor, numericality: { greater_than: 0 }
 end

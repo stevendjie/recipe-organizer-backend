@@ -1,9 +1,9 @@
 <template>
   <BCard no-body class="mb-1">
     <BCardHeader header-tag="header" class="p-1" role="tab">
-      <BButton block href="#" v-b-toggle.accordion-2 variant="primary">{{ title }}</BButton>
+      <BButton block href="#" v-b-toggle="accordionId" variant="primary">{{ title }}</BButton>
     </BCardHeader>
-    <BCollapse id="accordion-2" :visible="initiallyVisible" accordion="my-accordion" role="tabpanel">
+    <BCollapse :id="accordionId" :visible="initiallyVisible" accordion="my-accordion" role="tabpanel">
       <BCardBody>
         Ready In: {{ readyInMinutes }}
         Source URL: {{ sourceUrl }}
@@ -16,6 +16,10 @@
 export default {
   name: 'RecipeAccordion',
   props: {
+    id: {
+      type: Number,
+      required: true
+    },
     title: {
       type: String,
       required: true
@@ -35,6 +39,11 @@ export default {
     editMode: {
       type: Boolean,
       defaul: false
+    }
+  },
+  computed: {
+    accordionId () {
+      return `accordion-${this.id}`
     }
   }
 }
