@@ -2,9 +2,11 @@
   <div id="app">
     <notifications group="app-notifications" position="top right"/>
     <Nav />
-    <div class="container">
+    <div class="container mb-5">
       <div class="col-md-12">
-        <RouterView />
+        <KeepAlive>
+          <RouterView />
+        </KeepAlive>
       </div>
     </div>
   </div>

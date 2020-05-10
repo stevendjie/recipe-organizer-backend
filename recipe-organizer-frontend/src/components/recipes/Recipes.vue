@@ -1,70 +1,61 @@
 <template>
   <div>
     <h1>Recipes</h1>
-
     <div class="mt-3">
       <label>Source URL</label>
-      <BFormInput v-model="newRecipeSourceUrl" placeholder="Enter URL to import recipe from" class="mb-3"></BFormInput>
+      <BFormInput v-model="newRecipeSourceUrl" placeholder="Enter URL to import recipe from"></BFormInput>
+      <p>(Powered by <a target="_blank" href="https://spoonacular.com/food-api">Spoonacular API</a>)</p>
       <BButton :disabled="disableAddRecipe" @click="addRecipe" class="mr-2">Add Recipe</BButton>
     </div>
 
     <div class="mt-3">
-      <div v-for="recipe in recipes" :key="recipe.id" class="mb-3">
-        <RecipeAccordion
+      <div v-for="(recipe, idx) in recipes" :key="recipe.id" class="mb-3">
+        <Recipe
           :id="recipe.id"
           :title="recipe.title"
           :ready-in-minutes="recipe.readyInMinutes"
           :source-url="recipe.sourceUrl"
-          :initially-visible="recipe.isNew"
-          :edit-mode="recipe.editMode"
+          :ingredients="recipe.ingredients"
+          :scale-factor="recipe.scaleFactor"
+          :acc-visible="recipe.id === activeRecipeId"
+          :edit-mode="recipe.id === activeRecipeId && activeRecipeEditMode"
+          @update-visible="updateVisible"
+          @update-edit-mode="updateEditMode"
         />
       </div>
     </div>
+    <div>Icons made by <a target="_blank" href="https://www.flaticon.com/authors/iconixar" title="iconixar">iconixar</a> from <a target="_blank" href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
   </div>
 </template>
 
 <script>
-import RecipeAccordion from './recipe-accordion/RecipeAccordion.vue'
+import { mapState } from 'vuex'
+import Recipe from './recipe/Recipe.vue'
 
-function constructRecipe(data, isNew = false) {
-  // eslint-disable-next-line
-  const { id, title, source_url, ready_in_minutes, scale_factor, ingredients, equipment, notes, instructions } = data
-  return {
-    id,
-    title,
-    sourceUrl: source_url,
-    readyInMinutes: ready_in_minutes,
-    scaleFactor: scale_factor,
-    ingredients,
-    equipment,
-    notes,
-    instructions,
-    isNew
-  }
-}
 export default {
   name: 'Recipes',
   data () {
     return {
-      recipes: [],
       newRecipeSourceUrl: '',
-      disableAddRecipe: false
+      disableAddRecipe: false,
+      activeRecipeId: null,
+      activeRecipeEditMode: false
     }
   },
   components: {
-    RecipeAccordion
+    Recipe
+  },
+  computed: {
+    ...mapState(['recipes'])
   },
   created () {
     if (localStorage.signedIn) {
-      this.$http.secured.get('/api/v1/recipes/')
-      .then((resp) => {
-        this.recipes = resp.data.map(recipe => constructRecipe(recipe))
-      }).catch(() => {
+      this.$store.dispatch('setup').catch(() => {
         this.$notify({
-          group: 'app-notificaions',
+          group: 'app-notifications',
           title: 'Failed to fetch recipes',
-          type: 'error'
-        })
+          type: 'error',
+        })    
       })
     } else {
       this.$router.replace('/')
@@ -73,26 +64,34 @@ export default {
   methods: {
     addRecipe () {
       this.disableAddRecipe = true
-      this.$http.secured.post('/api/v1/recipes/', {
-        recipe: {
-          title: `Recipe ${this.recipes.length + 1}`,
-          source_url: this.newRecipeSourceUrl
-        }
-      }).then((resp) => {
-        this.recipes.unshift(constructRecipe(resp.data, true))
-        this.disableAddRecipe = false
+      this.$store.dispatch('prependRecipe', { sourceUrl: this.newRecipeSourceUrl })
+      .then((id) => {
         this.$notify({
           group: 'app-notifications',
           title: 'Successfully created recipe!',
           type: 'success',
         })
+        this.disableAddRecipe = false
+        this.activeRecipeId = id
+        this.activeRecipeEditMode = true
       }).catch(() => {
         this.$notify({
           group: 'app-notifications',
           title: 'Failed to create recipe!',
           type: 'error',
         })
+        this.disableAddRecipe = false
       })
+    },
+    updateVisible ({ visible, id }) {
+      if (!visible) {
+        this.activeRecipeId = null
+      } else {
+        this.activeRecipeId = id
+      }
+    },
+    updateEditMode (editMode) {
+      this.activeRecipeEditMode = editMode
     }
   }
 }

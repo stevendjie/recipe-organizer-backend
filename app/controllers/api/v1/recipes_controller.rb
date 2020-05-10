@@ -62,9 +62,8 @@ module Api
 
           ext_ingredients.each { |ingr|
             @recipe.ingredients.build({
-              name: ingr['name'],
+              name: ingr['originalName'],
               in_shopping_list: false,
-              original_name: ingr['originalName'],
               amount: ingr['amount'],
               unit: ingr['unit']
             })

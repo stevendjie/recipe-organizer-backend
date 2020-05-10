@@ -6,6 +6,7 @@ import router from './router'
 import VueAxios from 'vue-axios'
 import BootstrapVue from 'bootstrap-vue/dist/bootstrap-vue.esm'
 import Notifications from 'vue-notification'
+import { store } from './store/index.js'
 
 import { securedAxiosInstance, plainAxiosInstance } from './backend/axios'
 
@@ -27,6 +28,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   securedAxiosInstance,
   plainAxiosInstance,
   components: { App },
