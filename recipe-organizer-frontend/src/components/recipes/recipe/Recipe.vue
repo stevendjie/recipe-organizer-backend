@@ -9,7 +9,7 @@
       <div class="edit-controls mt-1">
         <BButton variant="light" size="sm" @click="onClickEditButton">Edit <BBadge :variant="editMode ? 'success' : 'danger'" class="ml-1">{{ editMode ? 'ON' : 'OFF' }}</BBadge></BButton>
         <BButton variant="light" size="sm">Save</BButton>
-        <BButton variant="light" size="sm">Delete</BButton>
+        <BButton variant="light" size="sm" @click="deleteRecipe">Delete</BButton>
       </div>
     </BCardHeader>
     <BCollapse :id="accordionId" :visible="accVisible" @input="onClickAccordionHeader" :accordion="accordionId" role="tabpanel">
@@ -72,6 +72,22 @@ export default {
     }
   },
   methods: {
+    deleteRecipe() {
+      this.$store.dispatch('deleteRecipe', { id: this. id })
+      .then(() => {
+        this.$notify({
+          group: 'app-notifications',
+          title: 'Successfully deleted recipe!',
+          type: 'success',
+        })
+      }).catch(() => {
+        this.$notify({
+          group: 'app-notifications',
+          title: 'Failed to delete recipe!',
+          type: 'error',
+        })
+      })
+    },
     onClickAccordionHeader(visible) {
       if (!visible) {
         this.$emit('update-edit-mode', { editMode: false, id: this.id })
@@ -80,10 +96,8 @@ export default {
     },
     onClickEditButton() {
       if (!this.editMode && !this.accVisible) {
-        console.log('here')
         this.$emit('update-visible', { visible: true, id: this.id })
       }
-      console.log('here2')
       this.$emit('update-edit-mode', { editMode: !this.editMode, id: this.id })
     }
   }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_04_201728) do
+ActiveRecord::Schema.define(version: 2020_05_10_212747) do
 
   create_table "equipment", force: :cascade do |t|
     t.integer "recipe_id", null: false
@@ -25,7 +25,6 @@ ActiveRecord::Schema.define(version: 2020_05_04_201728) do
   create_table "ingredients", force: :cascade do |t|
     t.integer "recipe_id", null: false
     t.string "name"
-    t.string "original_name"
     t.decimal "amount"
     t.string "unit"
     t.boolean "in_shopping_list"

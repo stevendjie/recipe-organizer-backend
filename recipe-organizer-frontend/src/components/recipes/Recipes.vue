@@ -71,9 +71,9 @@ export default {
           title: 'Successfully created recipe!',
           type: 'success',
         })
+        this.updateVisible({ visible: true, id })
+        this.updateEditMode({ editMode: true, id })
         this.disableAddRecipe = false
-        this.activeRecipeId = id
-        this.activeRecipeEditMode = true
       }).catch(() => {
         this.$notify({
           group: 'app-notifications',
@@ -84,18 +84,10 @@ export default {
       })
     },
     updateVisible ({ visible, id }) {
-      if (!visible) {
-        this.$set(this.activeRecipes, id, undefined)
-      } else {
-        this.$set(this.activeRecipes, id, true)
-      }
+      this.$set(this.activeRecipes, id, visible || undefined)
     },
     updateEditMode ({ editMode, id }) {
-      if (!editMode) {
-        this.$set(this.editingRecipes, id, undefined)
-      } else {
-        this.$set(this.editingRecipes, id, true)
-      }
+      this.$set(this.editingRecipes, id, editMode || undefined)
     }
   }
 }

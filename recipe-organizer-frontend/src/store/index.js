@@ -81,6 +81,10 @@ export const store = new Vuex.Store({
         commit('setRecipes', recipes)
         return resp.data.id
       })
+    },
+    deleteRecipe ({ commit, state }, { id }) {
+      return this._vm.$http.secured.delete(`/api/v1/recipes/${id}`)
+      .then(() => commit('setRecipes', state.recipes.filter(r => r.id !== id)))
     }
   }
 })
