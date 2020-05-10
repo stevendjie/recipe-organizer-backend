@@ -7,12 +7,12 @@
       </BButton>
       </div>
       <div class="edit-controls mt-1">
-        <BButton variant="light" size="sm">Edit <BBadge :variant="editMode ? 'success' : 'danger'" class="ml-1">{{ editMode ? 'ON' : 'OFF' }}</BBadge></BButton>
+        <BButton variant="light" size="sm" @click="onClickEditButton">Edit <BBadge :variant="editMode ? 'success' : 'danger'" class="ml-1">{{ editMode ? 'ON' : 'OFF' }}</BBadge></BButton>
         <BButton variant="light" size="sm">Save</BButton>
         <BButton variant="light" size="sm">Delete</BButton>
       </div>
     </BCardHeader>
-    <BCollapse :id="accordionId" :visible="accVisible" @input="onVisibleChanged" :accordion="accordionId" role="tabpanel">
+    <BCollapse :id="accordionId" :visible="accVisible" @input="onClickAccordionHeader" :accordion="accordionId" role="tabpanel">
       <BCardBody>
         <BCard class="mb-2">
           <BCardText>
@@ -56,7 +56,7 @@ export default {
     },
     editMode: {
       type: Boolean,
-      required: false
+      required: true
     },
     scaleFactor: {
       type: Number,
@@ -72,8 +72,19 @@ export default {
     }
   },
   methods: {
-    onVisibleChanged(visible) {
+    onClickAccordionHeader(visible) {
+      if (!visible) {
+        this.$emit('update-edit-mode', { editMode: false, id: this.id })
+      }
       this.$emit('update-visible', { visible, id: this.id })
+    },
+    onClickEditButton() {
+      if (!this.editMode && !this.accVisible) {
+        console.log('here')
+        this.$emit('update-visible', { visible: true, id: this.id })
+      }
+      console.log('here2')
+      this.$emit('update-edit-mode', { editMode: !this.editMode, id: this.id })
     }
   }
 }

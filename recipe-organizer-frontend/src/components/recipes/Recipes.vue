@@ -17,8 +17,8 @@
           :source-url="recipe.sourceUrl"
           :ingredients="recipe.ingredients"
           :scale-factor="recipe.scaleFactor"
-          :acc-visible="recipe.id === activeRecipeId"
-          :edit-mode="recipe.id === activeRecipeId && activeRecipeEditMode"
+          :acc-visible="!!(activeRecipes[recipe.id])"
+          :edit-mode="!!(editingRecipes[recipe.id])"
           @update-visible="updateVisible"
           @update-edit-mode="updateEditMode"
         />
@@ -38,8 +38,8 @@ export default {
     return {
       newRecipeSourceUrl: '',
       disableAddRecipe: false,
-      activeRecipeId: null,
-      activeRecipeEditMode: false
+      activeRecipes: {},
+      editingRecipes: {}
     }
   },
   components: {
@@ -85,13 +85,17 @@ export default {
     },
     updateVisible ({ visible, id }) {
       if (!visible) {
-        this.activeRecipeId = null
+        this.$set(this.activeRecipes, id, undefined)
       } else {
-        this.activeRecipeId = id
+        this.$set(this.activeRecipes, id, true)
       }
     },
-    updateEditMode (editMode) {
-      this.activeRecipeEditMode = editMode
+    updateEditMode ({ editMode, id }) {
+      if (!editMode) {
+        this.$set(this.editingRecipes, id, undefined)
+      } else {
+        this.$set(this.editingRecipes, id, true)
+      }
     }
   }
 }
