@@ -16,8 +16,30 @@
       <BCardBody>
         <BCard class="mb-2">
           <BCardText>
-            Source: <BLink :href="sourceUrl" target="_blank">{{ sourceUrl }}</BLink>
-            <Ingredients :ingredients="ingredients" />
+            <div>
+              <label>Source:
+              </label>
+              <BFormInput class="mb-2" v-if="editMode" :value="sourceUrl" type="text">
+              </BFormInput>
+              <BLink v-else :href="sourceUrl" target="_blank">
+                {{ sourceUrl }}
+              </BLink>
+            </div>
+            <div :class="{ 'text-center' : !editMode }">
+              <label>Multiply By: </label>
+              <strong>
+                <BFormInput class="mb-2" type="number" v-show="editMode" :value="scaleFactor" @input="updateScaleFactor"/>
+                {{ editMode ? '' : scaleFactor }}
+              </strong>
+            </div>
+            <BButton block variant="light" @click="toggleScale" size="sm">{{ scale ? 'Hide' : 'Show' }} Scaled Amounts</BButton>
+            <Ingredients
+              :ingredients="ingredients"
+              :scale-factor="scaleFactor"
+              :show-scaled="scale"
+              :edit-mode="editMode"
+              @update-ingredient="updateIngredient"
+            />
           </BCardText>
         </BCard>
       </BCardBody>
@@ -66,6 +88,11 @@ export default {
       type: Array
     }
   },
+  data () {
+    return {
+      scale: false
+    }
+  },
   computed: {
     accordionId () {
       return `accordion-${this.id}`
@@ -88,17 +115,37 @@ export default {
         })
       })
     },
-    onClickAccordionHeader(visible) {
+    onClickAccordionHeader (visible) {
       if (!visible) {
         this.$emit('update-edit-mode', { editMode: false, id: this.id })
       }
       this.$emit('update-visible', { visible, id: this.id })
     },
-    onClickEditButton() {
+    onClickEditButton () {
       if (!this.editMode && !this.accVisible) {
         this.$emit('update-visible', { visible: true, id: this.id })
       }
       this.$emit('update-edit-mode', { editMode: !this.editMode, id: this.id })
+    },
+    updateScaleFactor (scaleFactor) {
+      scaleFactor = Number(scaleFactor)
+      this.$store.dispatch('updateRecipe', { id: this.id, scaleFactor })
+    },
+    updateIngredient (ingrData, index) {
+      const { ingredients } = this
+      if (index === ingredients.length) { // new
+        ingrData.shoppingListIndex = null
+        ingredients.push(ingrData)
+      } else if (Object.keys(ingrData).length === 0) { // delete
+        ingredients.splice(index, 1)
+      } else { // update
+        ingrData.shoppingListIndex = null // TODO: need to change
+        ingredients[index] = Object.assign(ingredients[index], ingrData)
+      }
+      this.$store.dispatch('updateRecipe', { id: this.id, ingredients })
+    },
+    toggleScale () {
+      this.scale = !this.scale
     }
   }
 }

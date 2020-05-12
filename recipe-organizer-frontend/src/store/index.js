@@ -6,11 +6,11 @@ Vue.use(Vuex)
 function constructRecipe (recipe) {
   function constructIngr(ingr) {
     // eslint-disable-next-line
-    const { id, name, amount, unit, in_shopping_list, shopping_list_index } = ingr
+    const { name, amount, unit, in_shopping_list, shopping_list_index } = ingr
     return {
       id,
       name,
-      amount,
+      amount: parseFloat(Number(amount).toFixed(2)),
       unit,
       inShoppingList: in_shopping_list,
       shoppingListIndex: shopping_list_index
@@ -19,7 +19,7 @@ function constructRecipe (recipe) {
 
   function constructEq(eq) {
     // eslint-disable-next-line
-    const { id, name, in_shopping_list, shopping_list_index} = eq
+    const { id, name, in_shopping_list, shopping_list_index } = eq
     return {
       id,
       name,
@@ -85,6 +85,12 @@ export const store = new Vuex.Store({
     deleteRecipe ({ commit, state }, { id }) {
       return this._vm.$http.secured.delete(`/api/v1/recipes/${id}`)
       .then(() => commit('setRecipes', state.recipes.filter(r => r.id !== id)))
+    },
+    updateRecipe ({ commit, state }, recipeData) {
+      const { recipes } = state
+      const idx = recipes.findIndex(r => r.id === recipeData.id)
+      recipes[idx] = Object.assign(recipes[idx], recipeData)
+      commit('setRecipes', recipes)
     }
   }
 })
