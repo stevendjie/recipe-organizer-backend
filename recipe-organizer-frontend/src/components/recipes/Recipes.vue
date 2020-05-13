@@ -16,6 +16,7 @@
           :ready-in-minutes="recipe.readyInMinutes"
           :source-url="recipe.sourceUrl"
           :ingredients="recipe.ingredients"
+          :instructions="recipe.instructions"
           :scale-factor="recipe.scaleFactor"
           :acc-visible="!!(activeRecipes[recipe.id])"
           :edit-mode="!!(editingRecipes[recipe.id])"

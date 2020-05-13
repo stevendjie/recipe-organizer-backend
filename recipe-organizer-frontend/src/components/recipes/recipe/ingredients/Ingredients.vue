@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="ingredient-container">
-      <BTable responsive class="mt-2 raw" striped :items="ingredientItems" :fields="ingredientFields">
+      <BTable responsive class="mt-2" :small="true" striped :items="ingredientItems" :fields="ingredientFields">
         <template v-slot:cell(inShoppingList)="data">
           <BButton
             block
@@ -32,7 +32,7 @@
           </BButton>
         </template>
       </BTable>
-      <BButton block size="sm" variant="outline-primary" :disabled="!editMode" @click="addIngredient">
+      <BButton block class="mb-3" size="sm" variant="outline-primary" :disabled="!editMode" @click="addIngredient">
         Add Ingredient
       </BButton>
     </div>
@@ -61,8 +61,8 @@ export default {
   },
   data() {
     return {
-      rawFields: [{ key: 'delete', label: '', tdClass: 'vertically-center' }, { key: 'amount' }, { key: 'unit' }, { key: 'name' }, { key: 'inShoppingList', label: 'Shopping List', tdClass: 'vertically-center' }],
-      scaledFields: [{ key: 'delete', label: '', tdClass: 'vertically-center' }, { key: 'amount' }, { key: 'scaledAmount', label: 'Amount', variant: 'warning', striped: true }, { key: 'unit' }, { key: 'name' }, { key: 'inShoppingList', label: 'Shopping List', tdClass: 'vertically-center' }]
+      rawFields: [{ key: 'delete', label: '' }, { key: 'amount' }, { key: 'unit' }, { key: 'name', label: 'Ingredient' }, { key: 'inShoppingList', label: 'Shopping List' }],
+      scaledFields: [{ key: 'delete', label: '' }, { key: 'amount' }, { key: 'scaledAmount', label: 'Amount', variant: 'warning', striped: true }, { key: 'unit' }, { key: 'name', label: 'Ingredient' }, { key: 'inShoppingList', label: 'Shopping List' }]
     }
   },
   computed: {
@@ -109,7 +109,7 @@ export default {
   padding-top: 0.125rem;
   padding-bottom: 0.125rem;
 }
-/deep/ .vertically-center {
+/deep/ .table th, /deep/ .table td {
   vertical-align: middle;
 }
 </style>

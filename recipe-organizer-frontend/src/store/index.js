@@ -8,7 +8,6 @@ function constructRecipe (recipe) {
     // eslint-disable-next-line
     const { name, amount, unit, in_shopping_list, shopping_list_index } = ingr
     return {
-      id,
       name,
       amount: parseFloat(Number(amount).toFixed(2)),
       unit,
@@ -19,9 +18,8 @@ function constructRecipe (recipe) {
 
   function constructEq(eq) {
     // eslint-disable-next-line
-    const { id, name, in_shopping_list, shopping_list_index } = eq
+    const { name, in_shopping_list, shopping_list_index } = eq
     return {
-      id,
       name,
       inShoppingList: in_shopping_list,
       shoppingListIndex: shopping_list_index,
@@ -29,12 +27,9 @@ function constructRecipe (recipe) {
   }
 
   function constructInstr(instr) {
-    const { id, name, text, index } = instr
+    const { text } = instr
     return {
-      id,
-      name,
-      text,
-      index
+      text
     }
   }
 

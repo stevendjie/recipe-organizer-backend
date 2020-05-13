@@ -40,6 +40,11 @@
               :edit-mode="editMode"
               @update-ingredient="updateIngredient"
             />
+            <Instructions
+              :instructions="instructions"
+              :edit-mode="editMode"
+              @update-instruction="updateInstruction"
+            />
           </BCardText>
         </BCard>
       </BCardBody>
@@ -49,11 +54,13 @@
 
 <script>
 import Ingredients from './ingredients/Ingredients.vue'
+import Instructions from './instructions/Instructions.vue'
 
 export default {
   name: 'Recipe',
   components: {
-    Ingredients
+    Ingredients,
+    Instructions
   },
   props: {
     id: {
@@ -85,7 +92,12 @@ export default {
       required: true,
     },
     ingredients: {
-      type: Array
+      type: Array,
+      required: true
+    },
+    instructions: {
+      type: Array,
+      required: true
     }
   },
   data () {
@@ -143,6 +155,17 @@ export default {
         ingredients[index] = Object.assign(ingredients[index], ingrData)
       }
       this.$store.dispatch('updateRecipe', { id: this.id, ingredients })
+    },
+    updateInstruction (instrData, index, isNew = false) {
+      const { instructions } = this
+      if (Object.keys(instrData).length === 0) { // delete
+        instructions.splice(index, 1)
+      } else if (isNew) { // new
+        instructions.splice(index + 1, 0, instrData)
+      } else { // update
+        instructions[index] = Object.assign(instructions[index], instrData)
+      }
+      this.$store.dispatch('updateRecipe', { id: this.id, instructions })
     },
     toggleScale () {
       this.scale = !this.scale
