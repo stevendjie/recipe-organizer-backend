@@ -27,9 +27,15 @@
           {{ editMode ? '' : data.value }}
         </template>
         <template v-slot:cell(delete)="data">
-          <BButton block size="sm" class="button-badge" :disabled="!editMode" variant="danger" @click="deleteIngredient(data)">
-            X
+          <BButton size="sm" class="button-badge" :disabled="!editMode" variant="danger" @click="deleteIngredient(data)">
+            x
           </BButton>
+        </template>
+        <template v-slot:table-colgroup="scope">
+          <col
+            v-for="field in scope.fields"
+            :key="field.key"
+            :class="{ 'controls-button-width': field.key === 'delete', 'shopping-button-width': field.key === 'inShoppingList' }"          >
         </template>
       </BTable>
       <BButton block class="mb-3" size="sm" variant="outline-primary" :disabled="!editMode" @click="addIngredient">
@@ -85,13 +91,17 @@ export default {
       }
       return rawItems
     },
+
     ingredientFields () {
-      return this.showScaled ? this.scaledFields : this.rawFields
+      return this.showScaled ? this.filterButtons(this.scaledFields) : this.filterButtons(this.rawFields)
     }
   },
   methods: {
     updateIngrAttr(value, { field, index }) {
       const attr = field.key
+      if (attr === 'amount') {
+        value = Number(value)
+      }
       this.$emit('update-ingredient', { [attr]: value }, index)
     },
     deleteIngredient({ index }) {
@@ -99,6 +109,9 @@ export default {
     },
     addIngredient() {
       this.$emit('update-ingredient', { amount: '', unit: '', name: '', inShoppingList: false }, this.ingredients.length)
+    },
+    filterButtons (arr)  {
+      return !this.editMode ? arr.filter(f => f.key !== 'delete') : arr
     }
   }
 }
@@ -111,5 +124,11 @@ export default {
 }
 /deep/ .table th, /deep/ .table td {
   vertical-align: middle;
+}
+.controls-button-width {
+  width: 4%;
+}
+.shopping-button-width {
+  width: 15%;
 }
 </style>

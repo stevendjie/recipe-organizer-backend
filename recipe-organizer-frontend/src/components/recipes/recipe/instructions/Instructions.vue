@@ -18,6 +18,13 @@
             +
           </BButton>
         </template>
+        <template v-slot:table-colgroup="scope">
+          <col
+            v-for="field in scope.fields"
+            :key="field.key"
+            :class="{ 'button-badge-width': field.key === 'delete' || field.key === 'add' }"
+          >
+        </template>
     </BTable>
   </BListGroup>
 </template>
@@ -37,7 +44,7 @@ export default {
   },
   data() {
     return {
-      instructionFields: [{ key: 'delete', label: '', class: 'button-badge-width' }, { key: 'add', label: '', class: 'button-badge-width' }, { key: 'number', label: '#' }, { key: 'text', label: 'Instruction' }]
+      fields: [{ key: 'delete', label: '', class: 'button-badge-width' }, { key: 'add', label: '', class: 'button-badge-width' }, { key: 'number', label: '#' }, { key: 'text', label: 'Instruction' }]
     }
   },
   computed: {
@@ -51,6 +58,9 @@ export default {
         })
         return filteredInstr
       })
+    },
+    instructionFields () {
+      return !this.editMode ? this.fields.filter(f => f.key !== 'delete' && f.key !== 'add') : this.fields.filter(f => f.key !== 'number')
     }
   },
   methods: {
@@ -72,10 +82,10 @@ export default {
   padding-top: 0.125rem;
   padding-bottom: 0.125rem;
 }
+.button-badge-width {
+  width: 4%;
+}
 /deep/ .table th, /deep/ .table td {
   vertical-align: middle;
-}
-/deep/ .button-badge-width {
-  text-align: center;
 }
 </style>

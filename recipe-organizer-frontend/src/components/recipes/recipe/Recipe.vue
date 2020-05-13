@@ -14,39 +14,65 @@
     </BCardHeader>
     <BCollapse :id="accordionId" :visible="accVisible" @input="onClickAccordionHeader" :accordion="accordionId" role="tabpanel">
       <BCardBody>
-        <BCard class="mb-2">
-          <BCardText>
-            <div>
-              <label>Source:
-              </label>
-              <BFormInput class="mb-2" v-if="editMode" :value="sourceUrl" type="text">
-              </BFormInput>
-              <BLink v-else :href="sourceUrl" target="_blank">
-                {{ sourceUrl }}
-              </BLink>
-            </div>
-            <div :class="{ 'text-center' : !editMode }">
-              <label>Multiply By: </label>
-              <strong>
-                <BFormInput class="mb-2" type="number" v-show="editMode" :value="scaleFactor" @input="updateScaleFactor"/>
-                {{ editMode ? '' : scaleFactor }}
-              </strong>
-            </div>
-            <BButton block variant="light" @click="toggleScale" size="sm">{{ scale ? 'Hide' : 'Show' }} Scaled Amounts</BButton>
-            <Ingredients
-              :ingredients="ingredients"
-              :scale-factor="scaleFactor"
-              :show-scaled="scale"
-              :edit-mode="editMode"
-              @update-ingredient="updateIngredient"
-            />
-            <Instructions
-              :instructions="instructions"
-              :edit-mode="editMode"
-              @update-instruction="updateInstruction"
-            />
-          </BCardText>
-        </BCard>
+            <BTabs content-class="mt-3">
+              <BTab title="Information" active>
+                <div>
+                  <label>
+                    Source:
+                  </label>
+                  <BFormInput class="mb-2" v-if="editMode" :value="sourceUrl" @input="updateSourceUrl" type="text">
+                  </BFormInput>
+                  <BLink v-else :href="sourceUrl" target="_blank">
+                    {{ sourceUrl }}
+                  </BLink>
+                </div>
+                <div>
+                  <label>
+                    Title:
+                  </label>
+                  <BFormInput class="mb-2" v-if="editMode" :value="title" @input="updateTitle" type="text">
+                  </BFormInput>
+                  {{ !editMode ? title : '' }}
+                </div>
+                <div>
+                  <label>
+                    Time:
+                  </label>
+                  <BFormInput class="mb-2" v-if="editMode" :value="readyInMinutes" @input="updateReadyInMinutes" type="text">
+                  </BFormInput>
+                  {{ !editMode ? readyInMinutes : '' }}<strong v-show="!editMode">m</strong>
+                </div>
+              </BTab>
+              <BTab title="Ingredients & Equipment">
+                <div :class="{ 'text-center' : !editMode }">
+                  <label>Multiply By: </label>
+                  <strong>
+                    <BFormInput class="mb-2" type="number" v-show="editMode" :value="scaleFactor" @input="updateScaleFactor"/>
+                    {{ editMode ? '' : scaleFactor }}
+                  </strong>
+                </div>
+                <BButton block variant="light" @click="toggleScale" size="sm">{{ scale ? 'Hide' : 'Show' }} Scaled Amounts</BButton>
+                <Ingredients
+                  :ingredients="ingredients"
+                  :scale-factor="scaleFactor"
+                  :show-scaled="scale"
+                  :edit-mode="editMode"
+                  @update-ingredient="updateIngredient"
+                />
+                <Equipment
+                  :equipment="equipment"
+                  :edit-mode="editMode"
+                  @update-equipment="updateEquipment"
+                />
+              </BTab>
+              <BTab title="Instructions & Notes">
+                <Instructions
+                  :instructions="instructions"
+                  :edit-mode="editMode"
+                  @update-instruction="updateInstruction"
+                />
+              </BTab>
+            </BTabs>
       </BCardBody>
     </BCollapse>
   </BCard>
@@ -55,12 +81,14 @@
 <script>
 import Ingredients from './ingredients/Ingredients.vue'
 import Instructions from './instructions/Instructions.vue'
+import Equipment from './equipment/Equipment.vue'
 
 export default {
   name: 'Recipe',
   components: {
     Ingredients,
-    Instructions
+    Instructions,
+    Equipment
   },
   props: {
     id: {
@@ -96,6 +124,10 @@ export default {
       required: true
     },
     instructions: {
+      type: Array,
+      required: true
+    },
+    equipment: {
       type: Array,
       required: true
     }
@@ -143,18 +175,18 @@ export default {
       scaleFactor = Number(scaleFactor)
       this.$store.dispatch('updateRecipe', { id: this.id, scaleFactor })
     },
-    updateIngredient (ingrData, index) {
-      const { ingredients } = this
-      if (index === ingredients.length) { // new
-        ingrData.shoppingListIndex = null
-        ingredients.push(ingrData)
-      } else if (Object.keys(ingrData).length === 0) { // delete
-        ingredients.splice(index, 1)
+    updateShoppingListEntity (data, index, entityName) {
+      const entity = entityName === 'equipment' ? this.equipment : this.ingredients
+      if (index === entity.length) { // new
+        data.shoppingListIndex = null
+        entity.push(data)
+      } else if (Object.keys(data).length === 0) { // delete
+        entity.splice(index, 1)
       } else { // update
-        ingrData.shoppingListIndex = null // TODO: need to change
-        ingredients[index] = Object.assign(ingredients[index], ingrData)
+        data.shoppingListIndex = null // TODO: need to change
+        entity[index] = Object.assign(entity[index], data)
       }
-      this.$store.dispatch('updateRecipe', { id: this.id, ingredients })
+      this.$store.dispatch('updateRecipe', { id: this.id, [entityName]: entity })
     },
     updateInstruction (instrData, index, isNew = false) {
       const { instructions } = this
@@ -169,6 +201,21 @@ export default {
     },
     toggleScale () {
       this.scale = !this.scale
+    },
+    updateEquipment (eqData, index) {
+      this.updateShoppingListEntity(eqData, index, 'equipment')
+    },
+    updateIngredient (ingrData, index) {
+      this.updateShoppingListEntity(ingrData, index, 'ingredients')
+    },
+    updateSourceUrl (sourceUrl) {
+      this.$store.dispatch('updateRecipe', { id: this.id, sourceUrl })
+    },
+    updateTitle (title) {
+      this.$store.dispatch('updateRecipe', { id: this.id, title })
+    },
+    updateReadyInMinutes (readyInMinutes) {
+      this.$store.dispatch('updateRecipe', { id: this.id, readyInMinutes })
     }
   }
 }
