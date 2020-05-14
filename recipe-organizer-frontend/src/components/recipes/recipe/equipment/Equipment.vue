@@ -2,7 +2,7 @@
   <div>
     <BButton block variant="light" @click="show = !show" size="sm">{{ show ? 'Hide' : 'Show' }} Equipment</BButton>
     <div v-show="show">
-      <BTable responsive class="mt-2" :small="true" striped :items="eqItems" :fields="eqFields">
+      <BTable v-show="show" responsive class="mt-2" :small="true" striped :items="eqItems" :fields="eqFields">
         <template v-slot:cell(inShoppingList)="data">
           <BButton
             block
@@ -32,7 +32,7 @@
           {{ editMode ? '' : data.value }}
         </template>
       </BTable>
-      <BButton block class="mb-3" size="sm" variant="outline-primary" :disabled="!editMode" @click="addEquipment">
+      <BButton block size="sm" variant="outline-primary" :disabled="!editMode" @click="addEquipment">
         Add Equipment
       </BButton>
     </div>
@@ -59,15 +59,7 @@ export default {
   },
   computed: {
     eqItems () {
-      return this.equipment.map((row) => {
-        const filtered = {}
-        this.eqFields.forEach((f) => {
-          if (row[f.key] !== undefined) {
-            filtered[f.key] = row[f.key] 
-          }
-        })
-        return filtered
-      })
+      return this.equipment
     },
     eqFields () {
       const fields = [{ key: 'name', label: 'Equipment' }, { key: 'inShoppingList', label: 'Shopping List' }]

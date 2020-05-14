@@ -6,7 +6,7 @@
         {{ title }} | {{ readyInMinutes || 0 }}m
       </BButton>
       </div>
-      <div class="edit-controls mt-1">
+      <div class="edit-controls d-flex justify-content-center mt-1">
         <BButton variant="light" size="sm" @click="onClickEditButton">Edit <BBadge :variant="editMode ? 'success' : 'danger'" class="ml-1">{{ editMode ? 'ON' : 'OFF' }}</BBadge></BButton>
         <BButton variant="light" size="sm">Save</BButton>
         <BButton variant="light" size="sm" @click="deleteRecipe">Delete</BButton>
@@ -14,65 +14,70 @@
     </BCardHeader>
     <BCollapse :id="accordionId" :visible="accVisible" @input="onClickAccordionHeader" :accordion="accordionId" role="tabpanel">
       <BCardBody>
-            <BTabs content-class="mt-3">
-              <BTab title="Information" active>
-                <div>
-                  <label>
-                    Source:
-                  </label>
-                  <BFormInput class="mb-2" v-if="editMode" :value="sourceUrl" @input="updateSourceUrl" type="text">
-                  </BFormInput>
-                  <BLink v-else :href="sourceUrl" target="_blank">
-                    {{ sourceUrl }}
-                  </BLink>
-                </div>
-                <div>
-                  <label>
-                    Title:
-                  </label>
-                  <BFormInput class="mb-2" v-if="editMode" :value="title" @input="updateTitle" type="text">
-                  </BFormInput>
-                  {{ !editMode ? title : '' }}
-                </div>
-                <div>
-                  <label>
-                    Time:
-                  </label>
-                  <BFormInput class="mb-2" v-if="editMode" :value="readyInMinutes" @input="updateReadyInMinutes" type="text">
-                  </BFormInput>
-                  {{ !editMode ? readyInMinutes : '' }}<strong v-show="!editMode">m</strong>
-                </div>
-              </BTab>
-              <BTab title="Ingredients & Equipment">
-                <div :class="{ 'text-center' : !editMode }">
-                  <label>Multiply By: </label>
-                  <strong>
-                    <BFormInput class="mb-2" type="number" v-show="editMode" :value="scaleFactor" @input="updateScaleFactor"/>
-                    {{ editMode ? '' : scaleFactor }}
-                  </strong>
-                </div>
-                <BButton block variant="light" @click="toggleScale" size="sm">{{ scale ? 'Hide' : 'Show' }} Scaled Amounts</BButton>
-                <Ingredients
-                  :ingredients="ingredients"
-                  :scale-factor="scaleFactor"
-                  :show-scaled="scale"
-                  :edit-mode="editMode"
-                  @update-ingredient="updateIngredient"
-                />
-                <Equipment
-                  :equipment="equipment"
-                  :edit-mode="editMode"
-                  @update-equipment="updateEquipment"
-                />
-              </BTab>
-              <BTab title="Instructions & Notes">
-                <Instructions
-                  :instructions="instructions"
-                  :edit-mode="editMode"
-                  @update-instruction="updateInstruction"
-                />
-              </BTab>
-            </BTabs>
+        <BTabs content-class="mt-3">
+          <BTab title="Information" active>
+            <div>
+              <label class="font-weight-bold">
+                Source:
+              </label>
+              <BFormInput class="mb-2" v-if="editMode" :value="sourceUrl" @input="updateSourceUrl" type="text">
+              </BFormInput>
+              <BLink v-else :href="sourceUrl" target="_blank">
+                {{ sourceUrl }}
+              </BLink>
+            </div>
+            <div>
+              <label class="font-weight-bold">
+                Recipe Name:
+              </label>
+              <BFormInput class="mb-2" v-if="editMode" :value="title" @input="updateTitle" type="text">
+              </BFormInput>
+              {{ !editMode ? title : '' }}
+            </div>
+            <div>
+              <label class="font-weight-bold">
+                Time Required:
+              </label>
+              <BFormInput class="mb-2" v-if="editMode" :value="readyInMinutes" @input="updateReadyInMinutes" type="text">
+              </BFormInput>
+              {{ !editMode ? (readyInMinutes || 0) : '' }}<span v-show="!editMode">m</span>
+            </div>
+          </BTab>
+          <BTab title="Ingredients & Equipment">
+            <div :class="{ 'text-center' : !editMode }">
+              <label>Multiply By: </label>
+              <strong>
+                <BFormInput class="mb-2" type="number" v-show="editMode" :value="scaleFactor" @input="updateScaleFactor"/>
+                {{ editMode ? '' : scaleFactor }}
+              </strong>
+            </div>
+            <BButton block variant="light" @click="toggleScale" size="sm">{{ scale ? 'Hide' : 'Show' }} Scaled Amounts</BButton>
+            <Ingredients
+              :ingredients="ingredients"
+              :scale-factor="scaleFactor"
+              :show-scaled="scale"
+              :edit-mode="editMode"
+              @update-ingredient="updateIngredient"
+            />
+            <Equipment
+              :equipment="equipment"
+              :edit-mode="editMode"
+              @update-equipment="updateEquipment"
+            />
+          </BTab>
+          <BTab title="Instructions & Notes">
+            <Instructions
+              :instructions="instructions"
+              :edit-mode="editMode"
+              @update-instruction="updateInstruction"
+            />
+            <Notes 
+              :notes="notes"
+              :edit-mode="editMode"
+              @update-note="updateNote"
+            />
+          </BTab>
+        </BTabs>
       </BCardBody>
     </BCollapse>
   </BCard>
@@ -82,13 +87,15 @@
 import Ingredients from './ingredients/Ingredients.vue'
 import Instructions from './instructions/Instructions.vue'
 import Equipment from './equipment/Equipment.vue'
+import Notes from './notes/Notes.vue'
 
 export default {
   name: 'Recipe',
   components: {
     Ingredients,
     Instructions,
-    Equipment
+    Equipment,
+    Notes
   },
   props: {
     id: {
@@ -128,6 +135,10 @@ export default {
       required: true
     },
     equipment: {
+      type: Array,
+      required: true
+    },
+    notes: {
       type: Array,
       required: true
     }
@@ -176,7 +187,7 @@ export default {
       this.$store.dispatch('updateRecipe', { id: this.id, scaleFactor })
     },
     updateShoppingListEntity (data, index, entityName) {
-      const entity = entityName === 'equipment' ? this.equipment : this.ingredients
+      const entity = this[entityName]
       if (index === entity.length) { // new
         data.shoppingListIndex = null
         entity.push(data)
@@ -188,16 +199,16 @@ export default {
       }
       this.$store.dispatch('updateRecipe', { id: this.id, [entityName]: entity })
     },
-    updateInstruction (instrData, index, isNew = false) {
-      const { instructions } = this
+    updateInstructiveEntity (instrData, index, isNew, entityName) {
+      const entity = this[entityName]
       if (Object.keys(instrData).length === 0) { // delete
-        instructions.splice(index, 1)
+        entity.splice(index, 1)
       } else if (isNew) { // new
-        instructions.splice(index + 1, 0, instrData)
+        entity.splice(index + 1, 0, instrData)
       } else { // update
-        instructions[index] = Object.assign(instructions[index], instrData)
+        entity[index] = Object.assign(entity[index], instrData)
       }
-      this.$store.dispatch('updateRecipe', { id: this.id, instructions })
+      this.$store.dispatch('updateRecipe', { id: this.id, [entityName]: entity })
     },
     toggleScale () {
       this.scale = !this.scale
@@ -216,6 +227,12 @@ export default {
     },
     updateReadyInMinutes (readyInMinutes) {
       this.$store.dispatch('updateRecipe', { id: this.id, readyInMinutes })
+    },
+    updateNote (noteData, index, isNew = false) {
+      this.updateInstructiveEntity(noteData, index, isNew, 'notes')
+    },
+    updateInstruction (instrData, index, isNew = false) {
+      this.updateInstructiveEntity(instrData, index, isNew, 'instructions')
     }
   }
 }
@@ -225,7 +242,5 @@ export default {
 <style scoped>
 .edit-controls {
   width: 100%;
-  display: flex;
-  justify-content: center;
 }
 </style>

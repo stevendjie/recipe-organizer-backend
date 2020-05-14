@@ -18,6 +18,7 @@
           :ingredients="recipe.ingredients"
           :instructions="recipe.instructions"
           :equipment="recipe.equipment"
+          :notes="recipe.notes"
           :scale-factor="recipe.scaleFactor"
           :acc-visible="!!(activeRecipes[recipe.id])"
           :edit-mode="!!(editingRecipes[recipe.id])"

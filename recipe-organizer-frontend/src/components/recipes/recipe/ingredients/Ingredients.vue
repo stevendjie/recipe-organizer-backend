@@ -73,23 +73,14 @@ export default {
   },
   computed: {
     ingredientItems () {
-      const rawItems = this.ingredients.map((ingr) => {
-        const filteredIngr = {}
-        this.ingredientFields.forEach((f) => {
-          if (ingr[f.key] !== undefined) {
-            filteredIngr[f.key] = ingr[f.key] 
-          }
-        })
-        return filteredIngr
-      })
       if (this.showScaled) {
-        return rawItems.map((ingr) => {
+        return this.ingredients.map((ingr) => {
           const scaled = Number(ingr.amount) * this.scaleFactor
           ingr.scaledAmount = parseFloat(scaled.toFixed(2))
           return ingr
         })
       }
-      return rawItems
+      return this.ingredients
     },
 
     ingredientFields () {
