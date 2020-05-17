@@ -30,7 +30,7 @@
           >
         </template>
       </BTable>
-      <BButton block size="sm" v-show="notesItems.length === 0" variant="outline-primary" @click="addNote({ index: -1 })">
+      <BButton :disabled="!editMode" block size="sm" v-show="notesItems.length === 0" variant="outline-dark" @click="addNote({ index: -1 })">
         Add Note
       </BButton>
     </div>

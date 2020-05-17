@@ -79,10 +79,49 @@ module Api
     
       # PATCH/PUT /recipes/1
       def update
-        if @recipe.update(recipe_params)
-          render json: @recipe
-        else
-          render json: @recipe.errors, status: :unprocessable_entity
+        begin
+          ActiveRecord::Base.transaction do
+            @recipe.ingredients.destroy_all
+            recipe_assoc_params[:ingredients].each { |ingr|
+              @recipe.ingredients.create!({
+                name: ingr['name'],
+                in_shopping_list: ingr['inShoppingList'],
+                amount: ingr['amount'],
+                unit: ingr['unit'],
+                shopping_list_index: ingr['shoppingListIndex']
+              })
+            }
+            
+            @recipe.instructions.destroy_all
+            recipe_assoc_params[:instructions].each { |instr|
+              @recipe.instructions.create!({
+                index: instr['index'],
+                text: instr['text']
+              })
+            }
+
+            @recipe.equipment.destroy_all
+            recipe_assoc_params[:equipment].each { |eq|
+              @recipe.equipment.create!({
+                name: eq['name'],
+                in_shopping_list: eq['inShoppingList'],
+                shopping_list_index: eq['shoppingListIndex']
+              })
+            }
+
+            @recipe.notes.destroy_all
+            recipe_assoc_params[:notes].each { |note|
+              @recipe.notes.create!({
+                index: note['index'],
+                text: note['text']
+              })
+            }
+
+            @recipe.update(recipe_params)
+          end
+          render json: @recipe.to_json(include: [:ingredients, :equipment, :notes, :instructions]), status: :ok
+        rescue ActiveRecord::RecordInvalid => exception
+          render json: exception.message, status: :unprocessable_entity
         end
       end
     
@@ -99,7 +138,16 @@ module Api
     
         # Only allow a trusted parameter "white list" through.
         def recipe_params
-          params.require(:recipe).permit(:title, :source_url)
+          params.require(:recipe).permit(:title, :source_url, :ready_in_minutes, :scale_factor)
+        end
+
+        def recipe_assoc_params
+          params.require(:recipe).permit(
+            :ingredients => [:amount, :unit, :inShoppingList, :name, :shoppingListIndex], 
+            :equipment => [:name, :inShoppingList, :shoppingListIndex], 
+            :notes => [:index, :text], 
+            :instructions => [:index, :text]
+          )
         end
     end    
   end

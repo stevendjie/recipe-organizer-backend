@@ -10,11 +10,11 @@ Rails.application.routes.draw do
     end
   end
 
-  root to: 'home#index'
-
   post 'refresh', controller: :refresh, action: :create
   post 'login', controller: :login, action: :create
   delete 'login', controller: :login, action: :destroy
   post 'signup', controller: :signup, action: :create
 
+  get 'settings', controller: :settings, action: :show
+  patch 'settings', controller: :settings, action: :update
 end

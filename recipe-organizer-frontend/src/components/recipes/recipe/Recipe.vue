@@ -2,13 +2,14 @@
   <BCard no-body class="mb-1">
     <BCardHeader header-tag="header" class="p-1" role="tab">
       <div>
-      <BButton block v-b-toggle="accordionId" variant="primary" class="acc-title">
-        {{ title }} | {{ readyInMinutes || 0 }}m
-      </BButton>
+        <BButton block v-b-toggle="accordionId" variant="dark" class="acc-title">
+          {{ title }} | {{ readyInMinutes || 0 }}m
+          <BBadge variant="warning" class="ml-1" v-show="dirty">UNSAVED CHANGES</BBadge>
+        </BButton>
       </div>
       <div class="edit-controls d-flex justify-content-center mt-1">
-        <BButton variant="light" size="sm" @click="onClickEditButton">Edit <BBadge :variant="editMode ? 'success' : 'danger'" class="ml-1">{{ editMode ? 'ON' : 'OFF' }}</BBadge></BButton>
-        <BButton variant="light" size="sm">Save</BButton>
+        <BButton variant="light" size="sm" @click="onClickEditButton">Edit <BBadge :variant="editMode ? 'success' : 'warning'" class="ml-1">{{ editMode ? 'ON' : 'OFF' }}</BBadge></BButton>
+        <BButton variant="light" size="sm" @click="saveRecipe">Save</BButton>
         <BButton variant="light" size="sm" @click="deleteRecipe">Delete</BButton>
       </div>
     </BCardHeader>
@@ -20,7 +21,7 @@
               <label class="font-weight-bold">
                 Source:
               </label>
-              <BFormInput class="mb-2" v-if="editMode" :value="sourceUrl" @input="updateSourceUrl" type="text">
+              <BFormInput class="mb-2" v-if="editMode" :value="sourceUrl" @input="updateRecipeAttr($event, 'sourceUrl')" type="text">
               </BFormInput>
               <BLink v-else :href="sourceUrl" target="_blank">
                 {{ sourceUrl }}
@@ -30,7 +31,7 @@
               <label class="font-weight-bold">
                 Recipe Name:
               </label>
-              <BFormInput class="mb-2" v-if="editMode" :value="title" @input="updateTitle" type="text">
+              <BFormInput class="mb-2" v-if="editMode" :value="title" @input="updateRecipeAttr($event, 'title')" type="text">
               </BFormInput>
               {{ !editMode ? title : '' }}
             </div>
@@ -38,7 +39,7 @@
               <label class="font-weight-bold">
                 Time Required:
               </label>
-              <BFormInput class="mb-2" v-if="editMode" :value="readyInMinutes" @input="updateReadyInMinutes" type="text">
+              <BFormInput class="mb-2" v-if="editMode" :value="readyInMinutes" @input="updateRecipeAttr($event, 'readyInMinutes')" type="text">
               </BFormInput>
               {{ !editMode ? (readyInMinutes || 0) : '' }}<span v-show="!editMode">m</span>
             </div>
@@ -47,11 +48,11 @@
             <div :class="{ 'text-center' : !editMode }">
               <label>Multiply By: </label>
               <strong>
-                <BFormInput class="mb-2" type="number" v-show="editMode" :value="scaleFactor" @input="updateScaleFactor"/>
+                <BFormInput class="mb-2" type="number" v-show="editMode" :value="scaleFactor" @input="updateRecipeAttr($event, 'scaleFactor')"/>
                 {{ editMode ? '' : scaleFactor }}
               </strong>
             </div>
-            <BButton block variant="light" @click="toggleScale" size="sm">{{ scale ? 'Hide' : 'Show' }} Scaled Amounts</BButton>
+            <BButton block variant="light" @click="scale = !scale" size="sm">{{ scale ? 'Hide' : 'Show' }} Scaled Amounts</BButton>
             <Ingredients
               :ingredients="ingredients"
               :scale-factor="scaleFactor"
@@ -84,6 +85,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Ingredients from './ingredients/Ingredients.vue'
 import Instructions from './instructions/Instructions.vue'
 import Equipment from './equipment/Equipment.vue'
@@ -145,16 +147,18 @@ export default {
   },
   data () {
     return {
-      scale: false
+      scale: false,
+      dirty: false
     }
   },
   computed: {
+    ...mapGetters(['shoppingList']),
     accordionId () {
       return `accordion-${this.id}`
     }
   },
   methods: {
-    deleteRecipe() {
+    deleteRecipe () {
       this.$store.dispatch('deleteRecipe', { id: this. id })
       .then(() => {
         this.$notify({
@@ -166,6 +170,22 @@ export default {
         this.$notify({
           group: 'app-notifications',
           title: 'Failed to delete recipe!',
+          type: 'error',
+        })
+      })
+    },
+    saveRecipe () {
+      this.$store.dispatch('saveRecipe', { id: this.id })
+      .then(() => {
+        this.$notify({
+          group: 'app-notifications',
+          title: 'Successfully updated recipe!',
+          type: 'success',
+        })
+      }).catch(() => {
+        this.$notify({
+          group: 'app-notifications',
+          title: 'Failed to update recipe!',
           type: 'error',
         })
       })
@@ -182,10 +202,6 @@ export default {
       }
       this.$emit('update-edit-mode', { editMode: !this.editMode, id: this.id })
     },
-    updateScaleFactor (scaleFactor) {
-      scaleFactor = Number(scaleFactor)
-      this.$store.dispatch('updateRecipe', { id: this.id, scaleFactor })
-    },
     updateShoppingListEntity (data, index, entityName) {
       const entity = this[entityName]
       if (index === entity.length) { // new
@@ -194,10 +210,14 @@ export default {
       } else if (Object.keys(data).length === 0) { // delete
         entity.splice(index, 1)
       } else { // update
-        data.shoppingListIndex = null // TODO: need to change
+        if (data.inShoppingList) {
+          data.shoppingListIndex = this.shoppingList.length 
+        } else if (data.inShoppingList === false) {
+          data.shoppingListIndex = null;
+        }
         entity[index] = Object.assign(entity[index], data)
       }
-      this.$store.dispatch('updateRecipe', { id: this.id, [entityName]: entity })
+      this.updateRecipe({ id: this.id, [entityName]: entity })
     },
     updateInstructiveEntity (instrData, index, isNew, entityName) {
       const entity = this[entityName]
@@ -208,10 +228,7 @@ export default {
       } else { // update
         entity[index] = Object.assign(entity[index], instrData)
       }
-      this.$store.dispatch('updateRecipe', { id: this.id, [entityName]: entity })
-    },
-    toggleScale () {
-      this.scale = !this.scale
+      this.updateRecipe({ id: this.id, [entityName]: entity })
     },
     updateEquipment (eqData, index) {
       this.updateShoppingListEntity(eqData, index, 'equipment')
@@ -219,24 +236,24 @@ export default {
     updateIngredient (ingrData, index) {
       this.updateShoppingListEntity(ingrData, index, 'ingredients')
     },
-    updateSourceUrl (sourceUrl) {
-      this.$store.dispatch('updateRecipe', { id: this.id, sourceUrl })
-    },
-    updateTitle (title) {
-      this.$store.dispatch('updateRecipe', { id: this.id, title })
-    },
-    updateReadyInMinutes (readyInMinutes) {
-      this.$store.dispatch('updateRecipe', { id: this.id, readyInMinutes })
-    },
     updateNote (noteData, index, isNew = false) {
       this.updateInstructiveEntity(noteData, index, isNew, 'notes')
     },
     updateInstruction (instrData, index, isNew = false) {
       this.updateInstructiveEntity(instrData, index, isNew, 'instructions')
+    },
+    updateRecipeAttr (value, key) {
+      if (key === 'scaleFactor') {
+        value = Number(value)
+      }
+      this.updateRecipe({ id: this.id, [key]: value })
+    },
+    updateRecipe (payload) {
+      this.dirty = true
+      this.$store.dispatch('updateRecipe', payload)
     }
   }
 }
-
 </script>
 
 <style scoped>

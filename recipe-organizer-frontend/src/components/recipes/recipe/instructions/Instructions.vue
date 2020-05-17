@@ -2,7 +2,7 @@
   <div>
     <BTable responsive :small="true" striped :items="instructionItems" :fields="instructionFields">
       <template v-slot:cell(delete)="data">
-        <BButton size="sm" class="button-badge" :disabled="!editMode" variant="danger" @click="deleteInstruction(data)">
+        <BButton size="sm" class="button-badge" :disabled="!editMode" variant="outline-primary" @click="deleteInstruction(data)">
           x
         </BButton>
       </template>
@@ -14,7 +14,7 @@
         {{ editMode ? '' : data.value }}
       </template>
       <template v-slot:cell(add)="data">
-        <BButton size="sm" class="button-badge" :disabled="!editMode" variant="success" @click="addInstruction(data)">
+        <BButton size="sm" class="button-badge" :disabled="!editMode" variant="outline-dark" @click="addInstruction(data)">
           +
         </BButton>
       </template>
@@ -26,7 +26,7 @@
         >
       </template>
     </BTable>
-    <BButton block size="sm" v-show="instructionItems.length === 0" variant="outline-primary" @click="addInstruction({ index: -1 })">
+    <BButton :disabled="!editMode" block size="sm" v-show="instructionItems.length === 0" variant="outline-primary" @click="addInstruction({ index: -1 })">
       Add Instruction
     </BButton>
   </div>

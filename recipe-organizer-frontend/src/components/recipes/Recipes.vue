@@ -5,7 +5,7 @@
       <label>Source URL</label>
       <BFormInput v-model="newRecipeSourceUrl" placeholder="Enter URL to import recipe from"></BFormInput>
       <p>(Powered by <a target="_blank" href="https://spoonacular.com/food-api">Spoonacular API</a>)</p>
-      <BButton :disabled="disableAddRecipe" @click="addRecipe" class="mr-2">Add Recipe</BButton>
+      <BButton variant="outline-dark" :disabled="disableAddRecipe" @click="addRecipe" class="mr-2">Add Recipe</BButton>
     </div>
 
     <div class="mt-3">
@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import Recipe from './recipe/Recipe.vue'
 
 export default {
@@ -49,11 +49,22 @@ export default {
     Recipe
   },
   computed: {
-    ...mapState(['recipes'])
+    ...mapState(['recipes']),
+    ...mapGetters(['setup'])
   },
   created () {
     if (localStorage.signedIn) {
-      this.$store.dispatch('setup').catch(() => {
+      if (this.setup) {
+        return;
+      }
+      this.$store.dispatch('setupSettings').catch(() => {
+        this.$notify({
+          group: 'app-notifications',
+          title: 'Failed to fetch settings',
+          type: 'error',
+        }) 
+      })
+      this.$store.dispatch('setupRecipes').catch(() => {
         this.$notify({
           group: 'app-notifications',
           title: 'Failed to fetch recipes',
