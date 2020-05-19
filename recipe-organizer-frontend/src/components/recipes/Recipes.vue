@@ -5,7 +5,7 @@
       <label>Source URL</label>
       <BFormInput v-model="newRecipeSourceUrl" placeholder="Enter URL to import recipe from"></BFormInput>
       <p>(Powered by <a target="_blank" href="https://spoonacular.com/food-api">Spoonacular API</a>)</p>
-      <BButton variant="outline-dark" :disabled="disableAddRecipe" @click="addRecipe" class="mr-2">Add Recipe</BButton>
+      <BButton size="sm" variant="outline-dark" :disabled="disableAddRecipe" @click="addRecipe" class="mr-2">Add Recipe</BButton>
     </div>
 
     <div class="mt-3">
@@ -87,13 +87,14 @@ export default {
         })
         this.updateVisible({ visible: true, id })
         this.updateEditMode({ editMode: true, id })
-        this.disableAddRecipe = false
+        this.newRecipeSourceUrl = ''
       }).catch(() => {
         this.$notify({
           group: 'app-notifications',
           title: 'Failed to create recipe!',
           type: 'error',
         })
+      }).finally(() => {
         this.disableAddRecipe = false
       })
     },

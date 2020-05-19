@@ -48,18 +48,35 @@ function constructRecipe (recipe) {
   }
 }
 
-function convertNumbers(arr) {
+function convertNumbers (arr) {
   return arr.map(el => {
     el.amount = Number(el.amount)
     return el
   })
 }
 
-function addIndices(arr) {
+function addIndices (arr) {
   return arr.map((el, index) => {
     el.index = index
     return el
   })
+}
+
+function trimStrings (arr) {
+  return arr.map((el) => {
+    Object.keys(el).forEach((key) => {
+      if (typeof el[key] === 'string') {
+        el[key] = el[key].trim()
+      }
+    })
+    return el
+  })
+}
+
+function trimString (el) {
+  if (el === null)
+    return el
+  return el.trim()
 }
 
 export const store = new Vuex.Store({
@@ -67,7 +84,8 @@ export const store = new Vuex.Store({
     recipes: [],
     shoppingListEmail: null,
     recipesSetup: false,
-    settingsSetup: false
+    settingsSetup: false,
+    emailSetup: false
   },
   getters: {
     shoppingList: (state) => {
@@ -99,15 +117,18 @@ export const store = new Vuex.Store({
     },
     setSettingsSetup (state) {
       state.settingsSetup = true
+    },
+    setEmailSetup (state) {
+      state.emailSetup = true
     }
   },
   actions: {
-    setupSettings ({ commit }) {
+    setupSettings ({ commit, dispatch }) {
       return this._vm.$http.secured.get('/settings')
       .then((resp) => {
         const { shopping_list_email } = resp.data
-        commit('setShoppingListEmail', shopping_list_email)
         commit('setSettingsSetup')
+        dispatch('updateShoppingListEmail', shopping_list_email)
       })
     },
     setupRecipes ({ commit }) {
@@ -121,7 +142,7 @@ export const store = new Vuex.Store({
       return this._vm.$http.secured.post('/api/v1/recipes/', {
         recipe: {
           title: `Recipe ${state.recipes.length + 1}`,
-          source_url: sourceUrl
+          source_url: sourceUrl.trim()
         }
       }).then((resp) => {
         const { recipes } = state
@@ -138,14 +159,14 @@ export const store = new Vuex.Store({
       const recipe = state.recipes.find(r => r.id === id)
       return this._vm.$http.secured.patch(`/api/v1/recipes/${id}`, {
         recipe: {
-          title: recipe.title,
-          source_url: recipe.sourceUrl,
+          title: trimString(recipe.title),
+          source_url: trimString(recipe.sourceUrl),
           ready_in_minutes: Number(recipe.readyInMinutes),
           scale_factor: Number(recipe.scaleFactor),
-          ingredients: convertNumbers(recipe.ingredients),
-          equipment: recipe.equipment,
-          notes: addIndices(recipe.notes),
-          instructions: addIndices(recipe.instructions)
+          ingredients: trimStrings(convertNumbers(recipe.ingredients)),
+          equipment: trimStrings(recipe.equipment),
+          notes: trimStrings(addIndices(recipe.notes)),
+          instructions: trimStrings(addIndices(recipe.instructions))
         }
       })
     },
@@ -157,11 +178,14 @@ export const store = new Vuex.Store({
     },
     updateShoppingListEmail ({ commit }, email) {
       commit('setShoppingListEmail', email)
+      if (email) {
+        commit('setEmailSetup')
+      }
     },
     saveSettings ({ commit, state }) {
       return this._vm.$http.secured.patch('/settings', {
         settings: {
-          shopping_list_email: state.shoppingListEmail
+          shopping_list_email: state.shoppingListEmail.trim()
         }
       })
     }

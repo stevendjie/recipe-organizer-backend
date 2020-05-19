@@ -2,7 +2,7 @@
   <div>
     <BTable responsive :small="true" striped :items="instructionItems" :fields="instructionFields">
       <template v-slot:cell(delete)="data">
-        <BButton size="sm" class="button-badge" :disabled="!editMode" variant="outline-primary" @click="deleteInstruction(data)">
+        <BButton size="sm" class="button-badge" :disabled="!editMode" variant="outline-danger" @click="deleteInstruction(data)">
           x
         </BButton>
       </template>

@@ -19,7 +19,7 @@
           <BTab title="Information" active>
             <div>
               <label class="font-weight-bold">
-                Source:
+                Source URL:
               </label>
               <BFormInput class="mb-2" v-if="editMode" :value="sourceUrl" @input="updateRecipeAttr($event, 'sourceUrl')" type="text">
               </BFormInput>
@@ -182,6 +182,7 @@ export default {
           title: 'Successfully updated recipe!',
           type: 'success',
         })
+        this.dirty = false
       }).catch(() => {
         this.$notify({
           group: 'app-notifications',

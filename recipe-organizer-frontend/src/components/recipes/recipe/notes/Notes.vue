@@ -6,7 +6,7 @@
     <div v-show="show">
       <BTable responsive :small="true" striped :items="notesItems" :fields="notesFields">
         <template v-slot:cell(delete)="data">
-          <BButton size="sm" class="button-badge" :disabled="!editMode" variant="danger" @click="deleteNote(data)">
+          <BButton size="sm" class="button-badge" :disabled="!editMode" variant="outline-danger" @click="deleteNote(data)">
             x
           </BButton>
         </template>
@@ -18,7 +18,7 @@
           {{ editMode ? '' : data.value }}
         </template>
         <template v-slot:cell(add)="data">
-          <BButton size="sm" class="button-badge" :disabled="!editMode" variant="success" @click="addNote(data)">
+          <BButton size="sm" class="button-badge" :disabled="!editMode" variant="outline-dark" @click="addNote(data)">
             +
           </BButton>
         </template>

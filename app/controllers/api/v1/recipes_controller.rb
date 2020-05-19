@@ -20,8 +20,8 @@ module Api
         source_url = recipe_params[:source_url]
         recipe = { title: recipe_params[:title], scale_factor: 1 }
         # TODO: move elsewhere
-        base_endpoint = 'https://api.spoonacular.com/recipes'
-        api_key = '61da5a0bce374243a421ab56e2b092bc'
+        base_endpoint = ENV['SPOONACULAR_API_ENDPOINT']
+        api_key = ENV['SPOONACULAR_API_KEY']
 
         url = base_endpoint + '/extract?apiKey=' + api_key + '&url=' + source_url
 

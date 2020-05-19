@@ -16,7 +16,7 @@
           </BButton>
         </template>
         <template v-slot:cell(delete)="data">
-          <BButton size="sm" class="button-badge" :disabled="!editMode" variant="danger" @click="deleteEquipment(data)">
+          <BButton size="sm" class="button-badge" :disabled="!editMode" variant="outline-danger" @click="deleteEquipment(data)">
             x
           </BButton>
         </template>

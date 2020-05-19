@@ -27,7 +27,7 @@
           {{ editMode ? '' : data.value }}
         </template>
         <template v-slot:cell(delete)="data">
-          <BButton size="sm" class="button-badge" :disabled="!editMode" variant="danger" @click="deleteIngredient(data)">
+          <BButton size="sm" class="button-badge" :disabled="!editMode" variant="outline-danger" @click="deleteIngredient(data)">
             x
           </BButton>
         </template>

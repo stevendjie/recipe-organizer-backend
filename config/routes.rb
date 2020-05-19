@@ -3,10 +3,6 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :recipes
-      resources :ingredients
-      resources :equipment
-      resources :notes
-      resources :instructions
     end
   end
 
@@ -17,4 +13,6 @@ Rails.application.routes.draw do
 
   get 'settings', controller: :settings, action: :show
   patch 'settings', controller: :settings, action: :update
+
+  get 'send_shopping_list', controller: :shopping_list, action: :send_mail
 end
